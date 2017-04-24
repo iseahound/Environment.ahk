@@ -1,11 +1,14 @@
 # Environment.ahk
 Set, change, add or delete Windows Environment variables
 
-##### Add a directory to PATH
-SetEnvironmentVariable("PATH", "C:\bin", "ADD")
+#### Add a directory to PATH
+    SetEnvironmentVariable("PATH", "C:\bin", "ADD")
 
-##### Remove a directory from PATH
-SetEnvironmentVariable("PATH", "C:\bin", "SUB")
+#### Remove a directory from PATH
+    SetEnvironmentVariable("PATH", "C:\bin", "REMOVE")
+    
+#### Create a new Environment Variable
+    SetEnvironmentVariable("NUMBER_Of_GPU_CORES", "9")
 
 
 
