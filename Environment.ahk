@@ -13,10 +13,7 @@
 ; -1 - Error when writing value to registry.
 ; -2 - Value already added or value already deleted.
 ; -3 - Need to Run As Administrator.
-EnvUserNew("LOL", "%hello%;78;eqwuheuqwe;8123;dad;tester;tester2;C:\dir;D:\Dir;C:\System32;C:\System32\system;C:\System32\system\porn;C:\System32\system1\porn")
-EnvUserSort("LOL", 4)
-EnvUserSub("Test", "LOLOLOL")
-EnvUserAdd("PATH", "LMAO")
+
 EnvUserAdd(name, value, type := "", location := ""){
    RegRead, registry, % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
    if (!ErrorLevel) {
@@ -36,7 +33,7 @@ EnvUserAdd(name, value, type := "", location := ""){
 }
 
 EnvSystemAdd(name, value, type := ""){
-   return (A_IsAdmin) ? EnvUserAdd(name, value, expand, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+   return (A_IsAdmin) ? EnvUserAdd(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
 EnvUserSub(name, value, type := "", location := ""){
@@ -76,7 +73,7 @@ EnvUserNew(name, value := "", type := "", location := ""){
 }
 
 EnvSystemNew(name, value := "", type := ""){
-   return (A_IsAdmin) ? EnvUserNew(name, value, expand, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+   return (A_IsAdmin) ? EnvUserNew(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
 ; Value does nothing except let me easily change between functions.
