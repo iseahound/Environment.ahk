@@ -24,6 +24,7 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 
 #### Read an existing Environment Variable
     key := EnvUserRead("NUMBER_OF_GPU_CORES")
+    ; returns 9
 
 #### Delete an Environment Variable
     EnvUserDel("NUMBER_OF_GPU_CORES")
@@ -31,7 +32,7 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 #### Use EnvSystem to edit the System Environment Variables
     EnvSystemAdd("PATH", "X:\Backup\bin")
 
-#### Sort System PATH
+#### Sort System PATH in alphabetical order
     EnvSystemSort("PATH")
 
 ##### Note: You need to run your script as Administrator to use the EnvSystem commands, with the exception of EnvSystemRead().
