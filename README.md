@@ -1,10 +1,10 @@
 # Environment.ahk
 Set, change, add or delete Windows Environment variables
 
-## Add a directory to PATH
+##### Add a directory to PATH
 SetEnvironmentVariable("PATH", "C:\bin", "ADD")
 
-## Remove a directory from PATH
+##### Remove a directory from PATH
 SetEnvironmentVariable("PATH", "C:\bin", "SUB")
 
 
