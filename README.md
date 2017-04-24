@@ -19,6 +19,9 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 #### Remove a directory from user PATH
     EnvUserSub("PATH", "C:\bin")
 
+#### Using a Relative Path
+    EnvUserAdd("PATH", RPath_Absolute(A_ScriptDir, "..\project1\bin"))
+
 #### Create a new Environment Variable
     EnvUserNew("NUMBER_OF_GPU_CORES", "9")
 
@@ -35,4 +38,4 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 #### Sort System PATH in alphabetical order
     EnvSystemSort("PATH")
 
-##### Note: You need to run your script as Administrator to use the EnvSystem commands, with the exception of EnvSystemRead().
+##### Note: You need to run your script as Administrator to use the EnvSystem commands, with the exception of EnvSystemRead() and EnvSystemBackup().
