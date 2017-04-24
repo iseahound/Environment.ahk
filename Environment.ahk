@@ -10,12 +10,6 @@
 
 
 
-; SetEnvironmentVariable("TEST", "5555")                           ; Makes a new variable TEST with the value 5555
-; SetEnvironmentVariable("TEST", "5555", "DEL")                    ; Deletes TEST
-; SetEnvironmentVariable("PATH", "dir\to\someplace", "ADD")        ; Appends dir\to\someplace to PATH
-; SetEnvironmentVariable("PATH", "dir\to\someplace", "SUB")        ; Removes every instance of  dir\to\someplace to PATH
-; SetEnvironmentVariable("PATH", "C:\Windows", "EXIST")            ; Returns 1 if the value "C:\Windows" is in the variable PATH
-
 SetEnvironmentVariable(name, value, option := "") {
    if (option == "")
       RegWrite, REG_SZ, HKEY_CURRENT_USER\Environment, % name, % value
