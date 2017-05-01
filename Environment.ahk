@@ -181,7 +181,7 @@ ExpandEnvironmentStrings(ByRef vInputString)
       return False ; unable to get the size for the expanded string for some reason
 
    vByteSize := vSizeNeeded + 1
-   If (A_PtrSize == 8) { ; Only 64-Bit builds of AHK_L will return 8, all others will be 4 or blank
+   If (A_IsUnicode) { ; Only 64-Bit builds of AHK_L will return 8, all others will be 4 or blank
       vByteSize *= 2 ; need to expand to wide character sizes
    }
    VarSetCapacity(vTempValue, vByteSize, 0)
