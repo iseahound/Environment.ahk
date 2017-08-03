@@ -38,4 +38,7 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 #### Sort System PATH in alphabetical order
     EnvSystemSort("PATH")
 
-##### Note: You need to run your script as Administrator to use the EnvSystem commands, with the exception of EnvSystemRead() and EnvSystemBackup().
+#### Remove Duplicates from System PATH and sort in alphabetical order
+    EnvSystemRemoveDuplicates("PATH")
+
+##### Note: EnvSystem commands need to be Run As Administrator, with the exception of EnvSystemRead() and EnvSystemBackup().
