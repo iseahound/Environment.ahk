@@ -1,6 +1,7 @@
 ; Script:    Environment.ahk
 ; Author:    iseahound
 ; Date:      2017-02-11
+; Recent:    2017-08-03
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -85,7 +86,7 @@ EnvUserDel(name, value := "", location := ""){
 }
 
 EnvSystemDel(name, value := ""){
-   return (A_IsAdmin) ? EnvUserDel(name, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+   return (A_IsAdmin) ? EnvUserDel(name, value, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
 EnvUserRead(name, value := "", location := ""){
@@ -93,16 +94,16 @@ EnvUserRead(name, value := "", location := ""){
    if (value) {
       Loop, parse, registry, `;
       {
-         if (A_LoopField == value) {
-            return 1
+         if (A_LoopField = value) {
+            return A_LoopField
          }
       }
-      return
+      return ; Value not found
    }
    return registry
 }
 
-EnvSystemRead(name, value := "", location := ""){
+EnvSystemRead(name, value := ""){
    return EnvUserRead(name, value, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment")
 }
 
@@ -115,34 +116,47 @@ EnvUserSort(name, value := "", location := ""){
    return (ErrorLevel) ? -1 : 0
 }
 
-EnvSystemSort(name, value := "", location := ""){
+EnvSystemSort(name, value := ""){
    return (A_IsAdmin) ? EnvUserSort(name, value, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
-EnvUserBackup(fileName := "", location := ""){
+; Value does nothing except let me easily change between functions.
+EnvUserRemoveDuplicates(name, value := "", location := ""){
+   RegRead, registry, % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
+   Sort, registry, U D`;
+   type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+   RegWrite, % type , % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name, % registry
+   return (ErrorLevel) ? -1 : 0
+}
+
+EnvSystemRemoveDuplicates(name, value := ""){
+   return (A_IsAdmin) ? EnvUserRemoveDuplicates(name, value, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+}
+
+EnvUserBackup(fileName := "UserEnviroment.reg", location := ""){
    _cmd .= (A_Is64bitOS <> A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
    _cmd .= " /K " Chr(0x22) "reg export " Chr(0x22)
    _cmd .= (location == "")                   ? "HKEY_CURRENT_USER\Environment" : location
    _cmd .= Chr(0x22) " " Chr(0x22)
-   _cmd .= (fileName == "")                   ? "UserEnviroment.reg"            : fileName
+   _cmd .= fileName
    _cmd .= Chr(0x22) . Chr(0x22)
    Run % _cmd,, Hide
    return
 }
 
-EnvSystemBackup(fileName := ""){
-   return EnvUserBackup("SystemEnviroment.reg", "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment")
+EnvSystemBackup(fileName := "SystemEnviroment.reg"){
+   return EnvUserBackup(fileName, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment")
 }
 
-EnvUserRestore(fileName := ""){
-   try Run UserEnviroment.reg
+EnvUserRestore(fileName := "UserEnviroment.reg"){
+   try Run % fileName
    catch
       return "FAIL"
    return "SUCCESS"
 }
 
-EnvSystemRestore(fileName := ""){
-   try Run SystemEnviroment.reg
+EnvSystemRestore(fileName := "SystemEnviroment.reg"){
+   try Run % fileName
    catch
       return "FAIL"
    return "SUCCESS"
