@@ -1,7 +1,7 @@
 ; Script:    Environment.ahk
 ; Author:    iseahound
 ; Date:      2017-02-11
-; Recent:    2017-08-03
+; Recent:    2017-09-09
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
