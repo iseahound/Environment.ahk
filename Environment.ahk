@@ -133,7 +133,7 @@ Env_SystemRemoveDuplicates(name, value := ""){
    return (A_IsAdmin) ? Env_UserRemoveDuplicates(name, value, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
-Env_UserBackup(fileName := "UserEnviroment.reg", location := ""){
+Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
    _cmd .= (A_Is64bitOS <> A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
    _cmd .= " /K " Chr(0x22) "reg export " Chr(0x22)
    _cmd .= (location == "")                   ? "HKEY_CURRENT_USER\Environment" : location
@@ -144,18 +144,18 @@ Env_UserBackup(fileName := "UserEnviroment.reg", location := ""){
    return
 }
 
-Env_SystemBackup(fileName := "SystemEnviroment.reg"){
+Env_SystemBackup(fileName := "SystemEnvironment.reg"){
    return Env_UserBackup(fileName, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment")
 }
 
-Env_UserRestore(fileName := "UserEnviroment.reg"){
+Env_UserRestore(fileName := "UserEnvironment.reg"){
    try Run % fileName
    catch
       return "FAIL"
    return "SUCCESS"
 }
 
-Env_SystemRestore(fileName := "SystemEnviroment.reg"){
+Env_SystemRestore(fileName := "SystemEnvironment.reg"){
    try Run % fileName
    catch
       return "FAIL"
