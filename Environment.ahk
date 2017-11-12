@@ -140,8 +140,10 @@ Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
    _cmd .= Chr(0x22) " " Chr(0x22)
    _cmd .= fileName
    _cmd .= Chr(0x22) . Chr(0x22) . " && pause && exit"
-   RunWait % _cmd
-   return
+   try RunWait % _cmd
+   catch
+      return "FAIL"
+   return "SUCCESS"
 }
 
 Env_SystemBackup(fileName := "SystemEnvironment.reg"){
