@@ -1,7 +1,7 @@
 ; Script:    Environment.ahk
 ; Author:    iseahound
 ; Date:      2017-02-11
-; Recent:    2017-09-09
+; Recent:    2017-11-12
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -140,7 +140,7 @@ Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
    _cmd .= Chr(0x22) " " Chr(0x22)
    _cmd .= fileName
    _cmd .= Chr(0x22) . Chr(0x22) . " && pause && exit"
-   Run % _cmd
+   RunWait % _cmd
    return
 }
 
@@ -149,14 +149,14 @@ Env_SystemBackup(fileName := "SystemEnvironment.reg"){
 }
 
 Env_UserRestore(fileName := "UserEnvironment.reg"){
-   try Run % fileName
+   try RunWait % fileName
    catch
       return "FAIL"
    return "SUCCESS"
 }
 
 Env_SystemRestore(fileName := "SystemEnvironment.reg"){
-   try Run % fileName
+   try RunWait % fileName
    catch
       return "FAIL"
    return "SUCCESS"
