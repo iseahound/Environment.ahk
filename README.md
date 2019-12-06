@@ -20,7 +20,7 @@ Add, delete, sort, and backup Windows environment variables including PATH.
     Env_UserSub("PATH", "C:\bin")
 
 #### Using a Relative Path
-    Env_UserAdd("PATH", RPath_Absolute(A_ScriptDir, "..\project1\bin"))
+    Env_UserAdd("PATH", "..\project1\bin")
 
 #### Create a new Environment Variable
     Env_UserNew("NUMBER_OF_GPU_CORES", "9")
