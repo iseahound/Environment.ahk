@@ -5,9 +5,10 @@ Add, delete, sort, and backup Windows environment variables including PATH.
 
 * Automatic REG_SZ and REG_EXPAND_SZ detection
 * Backup before you make any changes with `EnvUserBackup()` and `EnvSystemBackup()`
-* Sort your messy Windows PATH in alphabetical order.
+* Sort your messy Windows PATH in alphabetical order and remove duplicate entries.
 * Edit both system and user path with separate commands.
 * Broadcast changes to PATH in the current AutoHotKey script and System-wide.
+* Supports relative paths with just in time conversion.
 
 ### Create a Backup before you regret it.
     Env_UserBackup()
