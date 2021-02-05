@@ -1,9 +1,9 @@
-; Script:    Environment.ahk
-; Author:    iseahound
-; License:   MIT License
-; Target:    AutoHotkey v1
-; Version:   2017-02-11
-; Updated:   2019-12-06
+; Script     Environment.ahk
+; Author     iseahound
+; License    MIT License
+; Target     AutoHotkey v1
+; Version    v1.00
+; Date       2021-02-05
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -15,9 +15,10 @@
 ;  -3 - Need to Run As Administrator.
 ;
 ; Notes
-;   SendMessage 0x1A,0,"Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+;   SendMessage 0x1A, 0, "Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
 ;      - The above code will broadcast a message stating there has been a change of environment variables.
 ;      - Some programs have not implemented this message.
+;      - v1.00 replaces this with a powershell command using asyncronous execution providing 10x speedup.
 ;   RefreshEnvironment()
 ;      - This function will update the environment variables within AutoHotkey.
 ;      - Command prompts launched by AutoHotkey inherit AutoHotkey's environment.
@@ -26,8 +27,8 @@
 ;        https://github.com/chocolatey-archive/chocolatey/blob/master/src/redirects/RefreshEnv.cmd
 
 Env_UserAdd(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value)          : value
-   location := (location == "")     ? "HKEY_CURRENT_USER\Environment" : location
+   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
+   location := (location == "")     ? "HKCU\Environment"     : location
 
    RegRead registry, % location, % name
    if (!ErrorLevel) {
@@ -36,12 +37,12 @@ Env_UserAdd(name, value, type := "", location := ""){
          if (A_LoopField == value)
             return -2
       }
-      registry .= (registry ~= "(;$|^$)") ? "" : ";"
+      registry .= (registry ~= "(^$|;$)") ? "" : ";"
       value := registry . value
    }
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type , % location, % name, % value
-   SendMessage 0x1A,0,"Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+   RegWrite % type, % location, % name, % value
+   SettingChange()
    RefreshEnvironment()
    return (ErrorLevel) ? -1 : 0
 }
@@ -51,8 +52,8 @@ Env_SystemAdd(name, value, type := ""){
 }
 
 Env_UserSub(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value)          : value
-   location := (location == "")     ? "HKEY_CURRENT_USER\Environment" : location
+   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
+   location := (location == "")     ? "HKCU\Environment"     : location
 
    RegRead registry, % location, % name
    if ErrorLevel
@@ -68,11 +69,11 @@ Env_UserSub(name, value, type := "", location := ""){
 
    if (output != "") {
       type := (type) ? type : (output ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-      RegWrite % type , % location, % name, % output
+      RegWrite % type, % location, % name, % output
    }
    else
       RegDelete % location, % name
-   SendMessage 0x1A,0,"Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+   SettingChange()
    RefreshEnvironment()
    return (ErrorLevel) ? -1 : 0
 }
@@ -83,8 +84,8 @@ Env_SystemSub(name, value, type := ""){
 
 Env_UserNew(name, value := "", type := "", location := ""){
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type , % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name, % value
-   SendMessage 0x1A,0,"Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % value
+   SettingChange()
    RefreshEnvironment()
    return (ErrorLevel) ? -1 : 0
 }
@@ -95,8 +96,8 @@ Env_SystemNew(name, value := "", type := ""){
 
 ; Value does nothing except let me easily change between functions.
 Env_UserDel(name, value := "", location := ""){
-   RegDelete % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
-   SendMessage 0x1A,0,"Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+   RegDelete % (location == "") ? "HKCU\Environment" : location, % name
+   SettingChange()
    RefreshEnvironment()
    return 0
 }
@@ -106,7 +107,7 @@ Env_SystemDel(name, value := ""){
 }
 
 Env_UserRead(name, value := "", location := ""){
-   RegRead registry, % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
+   RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    if (value) {
       Loop Parse, registry, `;
       {
@@ -125,10 +126,10 @@ Env_SystemRead(name, value := ""){
 
 ; Value does nothing except let me easily change between functions.
 Env_UserSort(name, value := "", location := ""){
-   RegRead registry, % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
+   RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    Sort registry, D`;
    type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type , % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name, % registry
+   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
 }
 
@@ -138,10 +139,10 @@ Env_SystemSort(name, value := ""){
 
 ; Value does nothing except let me easily change between functions.
 Env_UserRemoveDuplicates(name, value := "", location := ""){
-   RegRead registry, % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name
+   RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    Sort registry, U D`;
    type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type , % (location == "") ? "HKEY_CURRENT_USER\Environment" : location, % name, % registry
+   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
 }
 
@@ -152,7 +153,7 @@ Env_SystemRemoveDuplicates(name, value := ""){
 Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
    _cmd .= (A_Is64bitOS <> A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
    _cmd .= " /K " Chr(0x22) "reg export " Chr(0x22)
-   _cmd .= (location == "")                   ? "HKEY_CURRENT_USER\Environment" : location
+   _cmd .= (location == "")                   ? "HKCU\Environment" : location
    _cmd .= Chr(0x22) " " Chr(0x22)
    _cmd .= fileName
    _cmd .= Chr(0x22) . Chr(0x22) . " && pause && exit"
@@ -232,4 +233,63 @@ GetFullPathName(path) {
     VarSetCapacity(buf, cc*(A_IsUnicode?2:1))
     DllCall("GetFullPathName", "str", path, "uint", cc, "str", buf, "ptr", 0, "uint")
     return buf
+}
+
+
+; Source: https://gist.github.com/alphp/78fffb6d69e5bb863c76bbfc767effda
+/*
+$Script = @'
+Add-Type -Namespace Win32 -Name NativeMethods -MemberDefinition @"
+  [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+  public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, UIntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out UIntPtr lpdwResult);
+"@
+
+function Send-SettingChange {
+  $HWND_BROADCAST = [IntPtr] 0xffff;
+  $WM_SETTINGCHANGE = 0x1a;
+  $result = [UIntPtr]::Zero
+
+  [void] ([Win32.Nativemethods]::SendMessageTimeout($HWND_BROADCAST, $WM_SETTINGCHANGE, [UIntPtr]::Zero, "Environment", 2, 5000, [ref] $result))
+}
+
+Send-SettingChange;
+'@
+
+$ByteScript  = [System.Text.Encoding]::Unicode.GetBytes($Script)
+[System.Convert]::ToBase64String($ByteScript)
+*/
+
+; To verify the encoded command, start a powershell terminal and paste the script above.
+; 10x faster than SendMessage 0x1A, 0, "Environment",, ahk_id 0xFFFF ; 0x1A is WM_SETTINGCHANGE
+SettingChange() {
+
+   static _cmd := "
+   ( LTrim
+   QQBkAGQALQBUAHkAcABlACAALQBOAGEAbQBlAHMAcABhAGMAZQAgAFcAaQBuADMA
+   MgAgAC0ATgBhAG0AZQAgAE4AYQB0AGkAdgBlAE0AZQB0AGgAbwBkAHMAIAAtAE0A
+   ZQBtAGIAZQByAEQAZQBmAGkAbgBpAHQAaQBvAG4AIABAACIACgAgACAAWwBEAGwA
+   bABJAG0AcABvAHIAdAAoACIAdQBzAGUAcgAzADIALgBkAGwAbAAiACwAIABTAGUA
+   dABMAGEAcwB0AEUAcgByAG8AcgAgAD0AIAB0AHIAdQBlACwAIABDAGgAYQByAFMA
+   ZQB0ACAAPQAgAEMAaABhAHIAUwBlAHQALgBBAHUAdABvACkAXQAKACAAIABwAHUA
+   YgBsAGkAYwAgAHMAdABhAHQAaQBjACAAZQB4AHQAZQByAG4AIABJAG4AdABQAHQA
+   cgAgAFMAZQBuAGQATQBlAHMAcwBhAGcAZQBUAGkAbQBlAG8AdQB0ACgASQBuAHQA
+   UAB0AHIAIABoAFcAbgBkACwAIAB1AGkAbgB0ACAATQBzAGcALAAgAFUASQBuAHQA
+   UAB0AHIAIAB3AFAAYQByAGEAbQAsACAAcwB0AHIAaQBuAGcAIABsAFAAYQByAGEA
+   bQAsACAAdQBpAG4AdAAgAGYAdQBGAGwAYQBnAHMALAAgAHUAaQBuAHQAIAB1AFQA
+   aQBtAGUAbwB1AHQALAAgAG8AdQB0ACAAVQBJAG4AdABQAHQAcgAgAGwAcABkAHcA
+   UgBlAHMAdQBsAHQAKQA7AAoAIgBAAAoACgBmAHUAbgBjAHQAaQBvAG4AIABTAGUA
+   bgBkAC0AUwBlAHQAdABpAG4AZwBDAGgAYQBuAGcAZQAgAHsACgAgACAAJABIAFcA
+   TgBEAF8AQgBSAE8AQQBEAEMAQQBTAFQAIAA9ACAAWwBJAG4AdABQAHQAcgBdACAA
+   MAB4AGYAZgBmAGYAOwAKACAAIAAkAFcATQBfAFMARQBUAFQASQBOAEcAQwBIAEEA
+   TgBHAEUAIAA9ACAAMAB4ADEAYQA7AAoAIAAgACQAcgBlAHMAdQBsAHQAIAA9ACAA
+   WwBVAEkAbgB0AFAAdAByAF0AOgA6AFoAZQByAG8ACgAKACAAIABbAHYAbwBpAGQA
+   XQAgACgAWwBXAGkAbgAzADIALgBOAGEAdABpAHYAZQBtAGUAdABoAG8AZABzAF0A
+   OgA6AFMAZQBuAGQATQBlAHMAcwBhAGcAZQBUAGkAbQBlAG8AdQB0ACgAJABIAFcA
+   TgBEAF8AQgBSAE8AQQBEAEMAQQBTAFQALAAgACQAVwBNAF8AUwBFAFQAVABJAE4A
+   RwBDAEgAQQBOAEcARQAsACAAWwBVAEkAbgB0AFAAdAByAF0AOgA6AFoAZQByAG8A
+   LAAgACIARQBuAHYAaQByAG8AbgBtAGUAbgB0ACIALAAgADIALAAgADUAMAAwADAA
+   LAAgAFsAcgBlAGYAXQAgACQAcgBlAHMAdQBsAHQAKQApAAoAfQAKAAoAUwBlAG4A
+   ZAAtAFMAZQB0AHQAaQBuAGcAQwBoAGEAbgBnAGUAOwA=
+   )"
+   Run % "powershell -NoProfile -EncodedCommand " _cmd,, Hide
 }
