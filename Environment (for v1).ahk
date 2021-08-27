@@ -33,7 +33,7 @@ Env_UserAdd(name, value, type := "", location := ""){
 
    RegRead registry, % location, % name
    if (!ErrorLevel) {
-      Loop Parse, registry, `;
+      Loop Parse, registry, % ";"
       {
          if (A_LoopField == value)
             return -2
@@ -60,7 +60,7 @@ Env_UserSub(name, value, type := "", location := ""){
    if ErrorLevel
       return -2
 
-   Loop Parse, registry, `;
+   Loop Parse, registry, % ";"
    {
       if (A_LoopField != value) {
          output .= (A_Index > 1 && output != "") ? ";" : ""
@@ -110,7 +110,7 @@ Env_SystemDel(name, value := ""){
 Env_UserRead(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    if (value) {
-      Loop Parse, registry, `;
+      Loop Parse, registry, % ";"
       {
          if (A_LoopField = value) {
             return A_LoopField
@@ -128,7 +128,7 @@ Env_SystemRead(name, value := ""){
 ; Value does nothing except let me easily change between functions.
 Env_UserSort(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
-   Sort registry, D`;
+   Sort registry, % "D;"
    type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
@@ -141,7 +141,7 @@ Env_SystemSort(name, value := ""){
 ; Value does nothing except let me easily change between functions.
 Env_UserRemoveDuplicates(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
-   Sort registry, U D`;
+   Sort registry, % "U D;"
    type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
@@ -152,7 +152,7 @@ Env_SystemRemoveDuplicates(name, value := ""){
 }
 
 Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
-   _cmd .= (A_Is64bitOS <> A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
+   _cmd .= (A_Is64bitOS != A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
    _cmd .= " /K " Chr(0x22) "reg export " Chr(0x22)
    _cmd .= (location == "")                   ? "HKCU\Environment" : location
    _cmd .= Chr(0x22) " " Chr(0x22)
@@ -190,9 +190,9 @@ RefreshEnvironment()
    RegKeys := "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment,HKCU\Environment"
    Loop Parse, RegKeys, CSV
    {
-      Loop, Reg, %A_LoopField%, V
+      Loop Reg, % A_LoopField, V
       {
-         RegRead, Value
+         RegRead Value
          If (A_LoopRegType == "REG_EXPAND_SZ" && !ExpandEnvironmentStrings(Value))
             Continue
          If (A_LoopRegName = "PATH")
@@ -200,11 +200,11 @@ RefreshEnvironment()
          Else If (A_LoopRegName = "PATHEXT")
             PathExt .= Value . ";"
          Else
-            EnvSet %A_LoopRegName%, %Value%
+            EnvSet % A_LoopRegName, % Value
       }
    }
-   EnvSet PATH, %Path%
-   EnvSet PATHEXT, %PathExt%
+   EnvSet PATH, % Path
+   EnvSet PATHEXT, % PathExt
 }
 
 ExpandEnvironmentStrings(ByRef vInputString)
