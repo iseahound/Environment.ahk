@@ -2,7 +2,7 @@
 ; License:   MIT License
 ; Author:    Edison Hua (iseahound)
 ; Date       2021-02-05
-; Version    v1.00
+; Version    1.0.0
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
