@@ -10,7 +10,7 @@
 ;
 ; Global Error Values
 ;   0 - Success.
-;  -1 - Error when writing value to registry.
+;       The error value "-1" is never returned in v2, instead an OSError is thrown.
 ;  -2 - Value already added or value already deleted.
 ;  -3 - Need to Run As Administrator.
 ;
