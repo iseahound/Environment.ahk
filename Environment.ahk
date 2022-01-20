@@ -33,6 +33,8 @@ Env_UserAdd(name, value, type := "", location := ""){
    location := (location == "")     ? "HKCU\Environment"     : location
 
    registry := RegRead(location, name)
+
+
    Loop Parse, registry, ";"
       if (A_LoopField == value)
          return -2
@@ -55,6 +57,7 @@ Env_UserSub(name, value, type := "", location := ""){
 
    registry := RegRead(location, name)
    output := ""
+
 
    Loop Parse, registry, ";"
       if (A_LoopField != value) {

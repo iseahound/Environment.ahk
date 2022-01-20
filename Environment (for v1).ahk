@@ -33,15 +33,13 @@ Env_UserAdd(name, value, type := "", location := ""){
    location := (location == "")     ? "HKCU\Environment"     : location
 
    RegRead registry, % location, % name
-   if (!ErrorLevel) {
-      Loop Parse, registry, % ";"
-      {
-         if (A_LoopField == value)
-            return -2
-      }
-      registry .= (registry ~= "(^$|;$)") ? "" : ";"
-      value := registry . value
-   }
+   if (ErrorLevel)
+      return -1
+   Loop Parse, registry, % ";"
+      if (A_LoopField == value)
+         return -2
+   registry .= (registry ~= "(^$|;$)") ? "" : ";"
+   value := registry . value
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite % type, % location, % name, % value
    SettingChange()
@@ -62,12 +60,13 @@ Env_UserSub(name, value, type := "", location := ""){
       return -2
 
    Loop Parse, registry, % ";"
-   {
       if (A_LoopField != value) {
          output .= (A_Index > 1 && output != "") ? ";" : ""
          output .= A_LoopField
       }
-   }
+
+   if (output == registry)
+      return -2
 
    if (output != "") {
       type := (type) ? type : (output ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
@@ -110,13 +109,10 @@ Env_SystemDel(name, value := ""){
 
 Env_UserRead(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
-   if (value) {
+   if (value != "") {
       Loop Parse, registry, % ";"
-      {
-         if (A_LoopField = value) {
+         if (A_LoopField = value)
             return A_LoopField
-         }
-      }
       return ; Value not found
    }
    return registry
@@ -153,7 +149,7 @@ Env_SystemRemoveDuplicates(name, value := ""){
 }
 
 Env_UserBackup(fileName := "UserEnvironment.reg", location := ""){
-   _cmd .= (A_Is64bitOS != A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : ComSpec
+   _cmd .= (A_Is64bitOS != A_PtrSize >> 3)    ? A_WinDir "\SysNative\cmd.exe"   : A_ComSpec
    _cmd .= " /K " Chr(0x22) "reg export " Chr(0x22)
    _cmd .= (location == "")                   ? "HKCU\Environment" : location
    _cmd .= Chr(0x22) " " Chr(0x22)
@@ -216,10 +212,7 @@ ExpandEnvironmentStrings(ByRef vInputString)
       return False ; unable to get the size for the expanded string for some reason
 
    vByteSize := vSizeNeeded + 1
-   If (A_IsUnicode) { ; Only 64-Bit builds of AHK_L will return 8, all others will be 4 or blank
-      vByteSize *= 2 ; need to expand to wide character sizes
-   }
-   VarSetCapacity(vTempValue, vByteSize, 0)
+   VarSetCapacity(vTempValue, vByteSize*(A_IsUnicode?2:1))
 
    ; attempt to expand the environment string
    If (!DllCall("ExpandEnvironmentStrings", "Str", vInputString, "Str", vTempValue, "Int", vSizeNeeded))
