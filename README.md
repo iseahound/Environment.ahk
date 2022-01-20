@@ -1,6 +1,9 @@
 # Environment.ahk
 Add, delete, sort, and backup Windows environment variables including PATH.
 
+## Note for v2
+In the AutoHotkey v2 version of this script an OSError is thrown instead of the error value "-1".
+
 ## Features
 
 * Automatic REG_SZ and REG_EXPAND_SZ detection
