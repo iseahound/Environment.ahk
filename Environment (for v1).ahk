@@ -1,6 +1,7 @@
 ; Script     Environment.ahk
 ; License:   MIT License
 ; Author:    Edison Hua (iseahound)
+; Github:    https://github.com/iseahound/Environment.ahk
 ; Date       2021-02-05
 ; Version    1.0.0
 ;
