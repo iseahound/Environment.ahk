@@ -13,6 +13,17 @@ In the AutoHotkey v2 version of this script an OSError is thrown instead of the 
 * Broadcast changes to PATH in the current AutoHotKey script and System-wide.
 * Supports relative paths with just in time conversion.
 
+## Quick Start
+1. Rename Environment (for v1).ahk to Environment.ahk. 
+2. In the same directory create a new script with the following code.
+3. Double click on the script that was created and the user path should be displayed.
+```
+#include Environment.ahk
+Env_UserBackup()   ; Always backup!
+Env_SystemBackup()
+MsgBox % userpath := Env_UserRead("PATH")
+```
+
 ### Create a Backup before you regret it.
     Env_UserBackup()
     Env_SystemBackup()
