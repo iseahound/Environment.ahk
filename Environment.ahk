@@ -3,7 +3,7 @@
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
 ; Date       2022-01-20
-; Version    1.1.0
+; Version    1.2.0
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
