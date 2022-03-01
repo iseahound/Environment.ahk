@@ -84,6 +84,7 @@ Env_SystemSub(name, value, type := ""){
 }
 
 Env_UserNew(name, value := "", type := "", location := ""){
+   value := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % value
    SettingChange()
