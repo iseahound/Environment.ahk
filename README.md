@@ -16,12 +16,10 @@ In the AutoHotkey v2 version of this script an OSError is thrown instead of the 
 ## Quick Start
 1. Rename Environment (for v1).ahk to Environment.ahk. 
 2. In the same directory create a new script with the following code.
-3. Double click on the script that was created and the user path should be displayed.
 ```
 #include Environment.ahk
-Env_UserBackup()   ; Always backup!
-Env_SystemBackup()
-MsgBox % userpath := Env_UserRead("PATH")
+Env_UserBackup(), Env_SystemBackup()      ; Always backup!
+MsgBox % userpath := Env_UserRead("PATH") ; Display the user path.
 ```
 
 ### Create a Backup before you regret it.
