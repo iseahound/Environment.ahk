@@ -32,14 +32,17 @@ Env_UserAdd(name, value, type := "", location := ""){
    value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
    location := (location == "")     ? "HKCU\Environment"     : location
 
-   registry := RegRead(location, name)
+   ; Check if key exists.
+   try registry := RegRead(location, name)
+   if IsSet(registry) {
+      Loop Parse, registry, ";"
+         if (A_LoopField == value)
+            return -2
+      registry .= (registry ~= "(^$|;$)") ? "" : ";"
+      value := registry . value
+   }
 
-
-   Loop Parse, registry, ";"
-      if (A_LoopField == value)
-         return -2
-   registry .= (registry ~= "(^$|;$)") ? "" : ";"
-   value := registry . value
+   ; Create a new registry key.
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite value, type, location, name
    SettingChange()
