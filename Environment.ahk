@@ -2,8 +2,8 @@
 ; License:   MIT License
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
-; Date       2022-03-01
-; Version    1.2.0
+; Date       2023-10-25
+; Version    1.2.1
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -29,8 +29,8 @@
 #Requires AutoHotkey v2.0-beta.3+
 
 Env_UserAdd(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
-   location := (location == "")     ? "HKCU\Environment"     : location
+   value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
+   location := (location == "")        ? "HKCU\Environment"     : location
 
    ; Check if key exists.
    try registry := RegRead(location, name)
@@ -55,8 +55,8 @@ Env_SystemAdd(name, value, type := ""){
 }
 
 Env_UserSub(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
-   location := (location == "")     ? "HKCU\Environment"     : location
+   value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
+   location := (location == "")        ? "HKCU\Environment"     : location
 
    registry := RegRead(location, name)
    output := ""
@@ -87,7 +87,7 @@ Env_SystemSub(name, value, type := ""){
 }
 
 Env_UserNew(name, value := "", type := "", location := ""){
-   value := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
+   value := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite value, type, (location == "") ? "HKCU\Environment" : location, name
    SettingChange()
