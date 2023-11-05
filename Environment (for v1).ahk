@@ -2,8 +2,8 @@
 ; License:   MIT License
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
-; Date       2022-03-01
-; Version    1.2.0
+; Date       2023-11-04
+; Version    1.3
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -29,8 +29,8 @@
 #Requires AutoHotkey v1.1.33+
 
 Env_UserAdd(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
-   location := (location == "")     ? "HKCU\Environment"     : location
+   value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
+   location := (location == "")        ? "HKCU\Environment"     : location
 
    ; Check if key exists.
    RegRead registry, % location, % name
@@ -38,8 +38,11 @@ Env_UserAdd(name, value, type := "", location := ""){
       Loop Parse, registry, % ";"
          if (A_LoopField == value)
             return -2
-      registry .= (registry ~= "(^$|;$)") ? "" : ";"
-      value := registry . value
+   registry := RTrim(registry, ";")
+   if top
+      value := value ";" registry 
+   else
+      value := registry ";" value
    }
 
    ; Create a new registry key.
@@ -54,9 +57,17 @@ Env_SystemAdd(name, value, type := ""){
    return (A_IsAdmin) ? Env_UserAdd(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
+Env_UserAddTop(name, value, type := "", location := ""){
+   return Env_UserAdd(name, value, type, location, True)
+}
+
+Env_SystemAddTop(name, value, type := ""){
+   return (A_IsAdmin) ? Env_UserAddTop(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+}
+
 Env_UserSub(name, value, type := "", location := ""){
-   value    := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
-   location := (location == "")     ? "HKCU\Environment"     : location
+   value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
+   location := (location == "")        ? "HKCU\Environment"     : location
 
    RegRead registry, % location, % name
    if ErrorLevel
@@ -87,7 +98,7 @@ Env_SystemSub(name, value, type := ""){
 }
 
 Env_UserNew(name, value := "", type := "", location := ""){
-   value := (value ~= "^\.\.\\") ? GetFullPathName(value) : value
+   value := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
    type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
    RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % value
    SettingChange()
