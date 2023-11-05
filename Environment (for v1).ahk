@@ -28,7 +28,7 @@
 
 #Requires AutoHotkey v1.1.33+
 
-Env_UserAdd(name, value, type := "", location := ""){
+Env_UserAdd(name, value, regType := "", location := "", top := False){
    value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
    location := (location == "")        ? "HKCU\Environment"     : location
 
@@ -46,26 +46,26 @@ Env_UserAdd(name, value, type := "", location := ""){
    }
 
    ; Create a new registry key.
-   type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type, % location, % name, % value
+   regType := (regType) ? regType : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+   RegWrite % regType, % location, % name, % value
    SettingChange()
    RefreshEnvironment()
    return (ErrorLevel) ? -1 : 0
 }
 
-Env_SystemAdd(name, value, type := ""){
-   return (A_IsAdmin) ? Env_UserAdd(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+Env_SystemAdd(name, value, regType := ""){
+   return (A_IsAdmin) ? Env_UserAdd(name, value, regType, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
-Env_UserAddTop(name, value, type := "", location := ""){
-   return Env_UserAdd(name, value, type, location, True)
+Env_UserAddTop(name, value, regType := "", location := ""){
+   return Env_UserAdd(name, value, regType, location, True)
 }
 
-Env_SystemAddTop(name, value, type := ""){
-   return (A_IsAdmin) ? Env_UserAddTop(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+Env_SystemAddTop(name, value, regType := ""){
+   return (A_IsAdmin) ? Env_UserAddTop(name, value, regType, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
-Env_UserSub(name, value, type := "", location := ""){
+Env_UserSub(name, value, regType := "", location := ""){
    value    := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
    location := (location == "")        ? "HKCU\Environment"     : location
 
@@ -83,8 +83,8 @@ Env_UserSub(name, value, type := "", location := ""){
       return -2
 
    if (output != "") {
-      type := (type) ? type : (output ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-      RegWrite % type, % location, % name, % output
+      regType := (regType) ? regType : (output ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+      RegWrite % regType, % location, % name, % output
    }
    else
       RegDelete % location, % name
@@ -93,21 +93,21 @@ Env_UserSub(name, value, type := "", location := ""){
    return (ErrorLevel) ? -1 : 0
 }
 
-Env_SystemSub(name, value, type := ""){
-   return (A_IsAdmin) ? Env_UserSub(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+Env_SystemSub(name, value, regType := ""){
+   return (A_IsAdmin) ? Env_UserSub(name, value, regType, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
-Env_UserNew(name, value := "", type := "", location := ""){
+Env_UserNew(name, value := "", regType := "", location := ""){
    value := (value ~= "^\.(\.)?\\") ? GetFullPathName(value) : value
-   type := (type) ? type : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % value
+   regType := (regType) ? regType : (value ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+   RegWrite % regType, % (location == "") ? "HKCU\Environment" : location, % name, % value
    SettingChange()
    RefreshEnvironment()
    return (ErrorLevel) ? -1 : 0
 }
 
-Env_SystemNew(name, value := "", type := ""){
-   return (A_IsAdmin) ? Env_UserNew(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+Env_SystemNew(name, value := "", regType := ""){
+   return (A_IsAdmin) ? Env_UserNew(name, value, regType, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
 ; Value does nothing except let me easily change between functions.
@@ -141,8 +141,8 @@ Env_SystemRead(name, value := ""){
 Env_UserSort(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    Sort registry, % "D;"
-   type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
+   regType := (regType) ? regType : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+   RegWrite % regType, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
 }
 
@@ -154,8 +154,8 @@ Env_SystemSort(name, value := ""){
 Env_UserRemoveDuplicates(name, value := "", location := ""){
    RegRead registry, % (location == "") ? "HKCU\Environment" : location, % name
    Sort registry, % "U D;"
-   type := (type) ? type : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
-   RegWrite % type, % (location == "") ? "HKCU\Environment" : location, % name, % registry
+   regType := (regType) ? regType : (registry ~= "%") ? "REG_EXPAND_SZ" : "REG_SZ"
+   RegWrite % regType, % (location == "") ? "HKCU\Environment" : location, % name, % registry
    return (ErrorLevel) ? -1 : 0
 }
 
