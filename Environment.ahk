@@ -215,8 +215,8 @@ RefreshEnvironment()
             EnvSet A_LoopRegName, Value
       }
    }
-   EnvSet PATH, Path
-   EnvSet PATHEXT, PathExt
+   EnvSet "PATH", Path
+   EnvSet "PATHEXT", PathExt
 }
 
 ExpandEnvironmentStrings(&vInputString)
