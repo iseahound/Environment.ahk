@@ -2,8 +2,8 @@
 ; License:   MIT License
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
-; Date       2023-10-25
-; Version    1.2.1
+; Date       2023-11-04
+; Version    1.3
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -38,8 +38,11 @@ Env_UserAdd(name, value, type := "", location := ""){
       Loop Parse, registry, % ";"
          if (A_LoopField == value)
             return -2
-      registry .= (registry ~= "(^$|;$)") ? "" : ";"
-      value := registry . value
+   registry := RTrim(registry, ";")
+   if top
+      value := value ";" registry 
+   else
+      value := registry ";" value
    }
 
    ; Create a new registry key.
@@ -52,6 +55,14 @@ Env_UserAdd(name, value, type := "", location := ""){
 
 Env_SystemAdd(name, value, type := ""){
    return (A_IsAdmin) ? Env_UserAdd(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
+}
+
+Env_UserAddTop(name, value, type := "", location := ""){
+   return Env_UserAdd(name, value, type, location, True)
+}
+
+Env_SystemAddTop(name, value, type := ""){
+   return (A_IsAdmin) ? Env_UserAddTop(name, value, type, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment") : -3
 }
 
 Env_UserSub(name, value, type := "", location := ""){
