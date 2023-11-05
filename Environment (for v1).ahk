@@ -3,7 +3,7 @@
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
 ; Date       2023-11-04
-; Version    1.3
+; Version    1.3.1
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -40,7 +40,7 @@ Env_UserAdd(name, value, regType := "", location := "", top := False){
             return -2
    registry := RTrim(registry, ";")
    if top
-      value := value ";" registry 
+      value := value ";" registry
    else
       value := registry ";" value
    }
