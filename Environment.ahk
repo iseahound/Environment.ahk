@@ -3,7 +3,7 @@
 ; Author:    Edison Hua (iseahound)
 ; Github:    https://github.com/iseahound/Environment.ahk
 ; Date       2024-11-29
-; Version    2.0
+; Version    2.0.1
 ;
 ; ExpandEnvironmentStrings(), RefreshEnvironment()   by NoobSawce + DavidBiesack (modified by BatRamboZPM)
 ;   https://www.autohotkey.com/board/topic/63312-reload-systemuser-environment-variables/
@@ -227,7 +227,7 @@ Env_UserRestore(filepath := "UserEnvironment.reg") {
 Env_RefreshEnvironment() {
    Path := ""
    PathExt := ""
-   Loop Parse, "HKCU\Environment,HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment", "CSV"
+   Loop Parse, "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment,HKCU\Environment", "CSV"
    {
       Loop Reg, A_LoopField
       {
