@@ -131,8 +131,8 @@ Env_UserSub(name, value, type := "", key := "HKCU\Environment", broadcast := Tru
    out := ""
    Loop Parse, reg, ";"
       if (A_LoopField != value) {
-         output .= (A_Index > 1 && out != "") ? ";" : ""
-         output .= A_LoopField
+         out .= (A_Index > 1 && out != "") ? ";" : ""
+         out .= A_LoopField
       }
 
    if (out = reg)
